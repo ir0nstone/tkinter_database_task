@@ -83,6 +83,10 @@ class CustomerPage(Page):
 class CustomerViewPage(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+
+        self.customers = []
+        self.customer_options = []
+
         title = tk.Label(self, text="View Customer")
         title.config(font=("Arial", 40))
 
@@ -91,10 +95,8 @@ class CustomerViewPage(Page):
         # choose customer
         tk.Label(self, text="Customer:").grid(row=4, column=0)
 
-        self.customers = list_customers()
-        self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in self.customers]
         self.customer_var = tk.StringVar()
-        self.customer_var.set(self.customer_options[0])
+        self.reload_customer_list()
 
         customer_menu = tk.OptionMenu(self, self.customer_var, *self.customer_options)
         customer_menu.grid(row=4, column=1)
@@ -127,8 +129,8 @@ class CustomerViewPage(Page):
         view_btn.grid(row=201, column=0, columnspan=2)
 
         # delete button
-        view_btn = tk.Button(self, text='Delete Customer', command=self.delete)
-        view_btn.grid(row=202, column=0, columnspan=2)
+        del_btn = tk.Button(self, text='Delete Customer', command=self.delete)
+        del_btn.grid(row=202, column=0, columnspan=2)
 
     def submit(self):
         self.customerID = int(self.customer_var.get().split()[0])
@@ -145,7 +147,12 @@ class CustomerViewPage(Page):
         delete_customer(self.customerID)
         commit()
 
-        # reset to defaults
+        self.reload_customer_list()
+
+    def reload_customer_list(self):
         self.customers = list_customers()
         self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in self.customers]
-        self.customer_var.set(self.customer_options[0])
+        try:
+            self.customer_var.set(self.customer_options[0])
+        except IndexError:          # if all things are deleted
+            pass

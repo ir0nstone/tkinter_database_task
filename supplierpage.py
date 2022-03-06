@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_supplier, insert_supplierProduct, commit, list_products, get_supplier_id, list_suppliers, get_products_from_supplier, get_supplier
+from interact import insert_supplier, insert_supplierProduct, commit, list_products, get_supplier_id, list_suppliers, get_products_from_supplier, get_supplier, delete_supplier
 
 
 class MainSupplierPage(Page):
@@ -84,23 +84,6 @@ class SupplierPage(Page):
         sub_btn = tk.Button(self, text='Submit', command=self.submit)
         sub_btn.grid(row=9, column=0, columnspan=2)
 
-    def new_product(self):
-        self.current_idx += 1
-
-        # setup everything again
-        self.products_vars.append(tk.StringVar())
-        self.products_vars[self.current_idx].set(self.product_options[0])
-        self.price_vars.append(tk.StringVar())
-
-        product_menu = tk.OptionMenu(self, self.products_vars[self.current_idx], *self.product_options)
-        product_price = tk.Entry(self, textvariable=self.price_vars[self.current_idx])
-
-        product_menu.grid(row=6+self.current_idx, column=10)
-        product_price.grid(row=6+self.current_idx, column=11)
-
-        self.choice_widgets.append(product_menu)
-        self.choice_widgets.append(product_price)
-
     def submit(self):
         name = self.name_var.get()
         address = self.address_var.get()
@@ -137,10 +120,31 @@ class SupplierPage(Page):
         for widget in self.choice_widgets:
             widget.destroy()
 
+    def new_product(self):
+        self.current_idx += 1
+
+        # setup everything again
+        self.products_vars.append(tk.StringVar())
+        self.products_vars[self.current_idx].set(self.product_options[0])
+        self.price_vars.append(tk.StringVar())
+
+        product_menu = tk.OptionMenu(self, self.products_vars[self.current_idx], *self.product_options)
+        product_price = tk.Entry(self, textvariable=self.price_vars[self.current_idx])
+
+        product_menu.grid(row=6+self.current_idx, column=10)
+        product_price.grid(row=6+self.current_idx, column=11)
+
+        self.choice_widgets.append(product_menu)
+        self.choice_widgets.append(product_price)
+
 
 class SupplierViewPage(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+
+        self.products = []
+        self.suppliers = []
+        self.supplier_options = []
 
         title = tk.Label(self, text="View Supplier")
         title.config(font=("Arial", 40))
@@ -150,10 +154,8 @@ class SupplierViewPage(Page):
         # choose supplier
         tk.Label(self, text="Supplier:").grid(row=4, column=0)
 
-        suppliers = list_suppliers()
-        self.supplier_options = [f'{x[0]} {x[1]}' for x in suppliers]
         self.supplier_var = tk.StringVar()
-        self.supplier_var.set(self.supplier_options[0])
+        self.reload_supplier_list()
 
         supplier_menu = tk.OptionMenu(self, self.supplier_var, *self.supplier_options)
         supplier_menu.grid(row=4, column=1)
@@ -180,23 +182,15 @@ class SupplierViewPage(Page):
         self.supplierAddressInfo.grid(row=7, column=1)
         self.supplierEmailInfo.grid(row=8, column=1)
 
-        self.products = get_products_from_supplier(self.supplierID)
-
-        for i, pr in enumerate(self.products):
-            name, cost = pr
-
-            pr_name = tk.Label(self, text=name)
-            pr_quan = tk.Label(self, text=cost)
-
-            pr_name.grid(row=9 + i, column=0)
-            pr_quan.grid(row=9 + i, column=1)
-
-            self.product_widgets.append(pr_name)
-            self.product_widgets.append(pr_quan)
+        self.show_products()
 
         # button
         sub_btn = tk.Button(self, text='View Supplier Information', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
+
+        # delete button
+        del_btn = tk.Button(self, text='Delete Supplier', command=self.delete)
+        del_btn.grid(row=202, column=0, columnspan=2)
 
     def submit(self):
         for widget in self.product_widgets:
@@ -204,7 +198,6 @@ class SupplierViewPage(Page):
 
         self.product_widgets = []
 
-        # copied?
         self.supplierID = int(self.supplier_var.get().split()[0])
         self.supplier_info = get_supplier(self.supplierID)
 
@@ -213,6 +206,15 @@ class SupplierViewPage(Page):
         self.supplierAddressInfo.config(text=f'{self.supplier_info[2]}')
         self.supplierEmailInfo.config(text=f'{self.supplier_info[3]}')
 
+        self.show_products()
+
+    def delete(self):
+        self.supplierID = int(self.supplier_var.get().split()[0])
+        delete_supplier(self.supplierID)
+        commit()
+        self.reload_supplier_list()
+
+    def show_products(self):
         self.products = get_products_from_supplier(self.supplierID)
 
         for i, pr in enumerate(self.products):
@@ -226,3 +228,8 @@ class SupplierViewPage(Page):
 
             self.product_widgets.append(pr_name)
             self.product_widgets.append(pr_quan)
+
+    def reload_supplier_list(self):
+        self.suppliers = list_suppliers()
+        self.supplier_options = [f'{x[0]} {x[1]}' for x in self.suppliers]
+        self.supplier_var.set(self.supplier_options[0])

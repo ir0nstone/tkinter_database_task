@@ -41,6 +41,7 @@ class OrderPage(Page):
 
         # choose customer
         customers = list_customers()
+
         self.customer_options = [f'{x[0]} {x[1]} {x[2]}' for x in customers]
 
         self.customer_var = tk.StringVar()
@@ -149,6 +150,10 @@ class OrderViewPage(Page):
         # select order
         tk.Label(self, text="Order:").grid(row=4, column=0)
         orders = list_orders()
+
+        if len(orders) == 0:
+            return
+
         self.order_options = [f'{x[0]}' for x in orders]
 
         self.order_var = tk.StringVar()
@@ -171,7 +176,7 @@ class OrderViewPage(Page):
         self.load_products()
 
         # button
-        sub_btn = tk.Button(self, text='View Customer Information', command=self.submit)
+        sub_btn = tk.Button(self, text='View Order Information', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
 
     def submit(self):

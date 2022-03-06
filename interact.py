@@ -178,9 +178,8 @@ def delete_customer(customerID):
     delete_customer_orders(customerID)
     conn.execute('DELETE FROM customer WHERE customerID=?', (customerID,))
 
-
 def delete_order(orderID):
-    delete_order_products(orderID)
+    conn.execute('DELETE FROM productOrderLink WHERE orderID=?', (orderID,))
     conn.execute('DELETE FROM orders WHERE orderID=?', (orderID,))
 
 def delete_customer_orders(customerID):
@@ -191,5 +190,11 @@ def delete_customer_orders(customerID):
     for order in orders:
         delete_order(order[0])
 
-def delete_order_products(orderID):
-    conn.execute('DELETE FROM productOrderLink WHERE orderID=?', (orderID,))
+def delete_product(productID):
+    conn.execute('DELETE FROM productOrderLink WHERE productID=?', (productID,))
+    conn.execute('DELETE FROM supplierProduct WHERE productID=?', (productID,))
+    conn.execute('DELETE FROM product WHERE productID=?', (productID,))
+
+def delete_supplier(supplierID):
+    conn.execute('DELETE FROM supplierProduct WHERE supplierID=?', (supplierID,))
+    conn.execute('DELETE FROM supplier WHERE supplierID=?', (supplierID,))

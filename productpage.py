@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_product, commit, list_products, get_product
+from interact import insert_product, commit, list_products, get_product, delete_product
 
 
 class MainProductPage(Page):
@@ -75,17 +75,18 @@ class ProductViewPage(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
+        self.products = []
+        self.product_options = []
+
         title = tk.Label(self, text="View Product")
         title.config(font=("Arial", 40))
-
         title.grid(row=0, column=0, rowspan=4, columnspan=10)
 
         # choose product
         tk.Label(self, text="Product:").grid(row=4, column=0)
-        products = list_products()
-        self.product_options = [f'{x[0]} {x[1]}' for x in products]
+
         self.product_var = tk.StringVar()
-        self.product_var.set(self.product_options[0])
+        self.reload_product_list()
 
         product_menu = tk.OptionMenu(self, self.product_var, *self.product_options)
         product_menu.grid(row=4, column=1)
@@ -111,8 +112,12 @@ class ProductViewPage(Page):
         self.productStockInfo.grid(row=8, column=1)
 
         # button
-        sub_btn = tk.Button(self, text='View Customer Information', command=self.submit)
+        sub_btn = tk.Button(self, text='View Product Information', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
+
+        # delete button
+        del_btn = tk.Button(self, text='Delete Product', command=self.delete)
+        del_btn.grid(row=202, column=0, columnspan=2)
 
     def submit(self):
         self.productID = int(self.product_var.get().split()[0])
@@ -122,3 +127,16 @@ class ProductViewPage(Page):
         self.productNameInfo.config(text=f'{self.product_info[1]}')
         self.productCostInfo.config(text=f'{self.product_info[2]}')
         self.productStockInfo.config(text=f'{self.product_info[3]}')
+
+    def delete(self):
+        self.productID = int(self.product_var.get().split()[0])
+        delete_product(self.productID)
+        commit()
+
+        self.reload_product_list()
+        self.submit()
+
+    def reload_product_list(self):
+        self.products = list_products()
+        self.product_options = [f'{x[0]} {x[1]}' for x in self.products]
+        self.product_var.set(self.product_options[0])

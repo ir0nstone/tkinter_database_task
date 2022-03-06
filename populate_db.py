@@ -35,7 +35,19 @@ with open('mock_data/product_mock_data.csv') as csvfile:
 
 commit()
 
-# populate order
+# populate supplierProduct
+for productID in range(11):
+    for supplierID in range(21):
+        insert_supplierProduct(productID, supplierID, random.randint(0, 3))
+
+commit()
+
+exit(0)
+close()
+
+
+
+# populate order manually
 for _ in range(500):
     insert_order(random.randint(0, 999))      # 1000 customers
 
@@ -47,10 +59,7 @@ for _ in range(20):
 
 commit()
 
-# populate supplierProduct
-for productID in range(11):
-    for supplierID in range(21):
-        insert_supplierProduct(productID, supplierID, random.randint(0, 3))
+
 
 commit()
 
