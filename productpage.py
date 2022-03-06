@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_product, commit, list_products, get_product, delete_product
+from interact import insert_product, commit, list_products, get_product, delete_product, update_product
 
 
 class MainProductPage(Page):
@@ -101,23 +101,34 @@ class ProductViewPage(Page):
         self.productID = int(self.product_var.get().split()[0])
         self.product_info = get_product(self.productID)
 
+        self.productNameVar = tk.StringVar()
+        self.productCostVar = tk.StringVar()
+        self.productStockVar = tk.StringVar()
+
         self.productIDInfo = tk.Label(self, text=f'{self.product_info[0]}')
-        self.productNameInfo = tk.Label(self, text=f'{self.product_info[1]}')
-        self.productCostInfo = tk.Label(self, text=f'{self.product_info[2]}')
-        self.productStockInfo = tk.Label(self, text=f'{self.product_info[3]}')
+        productNameInfo = tk.Entry(self, textvariable=self.productNameVar)
+        self.productNameVar.set(f'{self.product_info[1]}')
+        productCostInfo = tk.Entry(self, textvariable=self.productCostVar)
+        self.productCostVar.set(f'{self.product_info[2]}')
+        productStockInfo = tk.Entry(self, textvariable=self.productStockVar)
+        self.productStockVar.set(f'{self.product_info[3]}')
 
         self.productIDInfo.grid(row=5, column=1)
-        self.productNameInfo.grid(row=6, column=1)
-        self.productCostInfo.grid(row=7, column=1)
-        self.productStockInfo.grid(row=8, column=1)
+        productNameInfo.grid(row=6, column=1)
+        productCostInfo.grid(row=7, column=1)
+        productStockInfo.grid(row=8, column=1)
 
         # button
         sub_btn = tk.Button(self, text='View Product Information', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
 
+        # update button
+        upd_btn = tk.Button(self, text='Update Product', command=self.update)
+        upd_btn.grid(row=202, column=0, columnspan=2)
+
         # delete button
         del_btn = tk.Button(self, text='Delete Product', command=self.delete)
-        del_btn.grid(row=202, column=0, columnspan=2)
+        del_btn.grid(row=203, column=0, columnspan=2)
 
     def submit(self):
         self.productID = int(self.product_var.get().split()[0])
@@ -127,6 +138,12 @@ class ProductViewPage(Page):
         self.productNameInfo.config(text=f'{self.product_info[1]}')
         self.productCostInfo.config(text=f'{self.product_info[2]}')
         self.productStockInfo.config(text=f'{self.product_info[3]}')
+
+    def update(self):
+        self.productID = int(self.product_var.get().split()[0])
+
+        update_product(self.productID, self.productNameVar.get(), self.productCostVar.get(), self.productStockVar.get())
+        commit()
 
     def delete(self):
         self.productID = int(self.product_var.get().split()[0])

@@ -177,6 +177,8 @@ def check_order_product(orderID, productID):
 def update_customer(customerID, surname, forename, address, telephone, email):
     conn.execute('UPDATE customer SET surname=?, forename=?, address=?, telephone=?, email=? WHERE customerID=?', (surname, forename, address, telephone, email, customerID))
 
+def update_product(productID, name, cost, stock):
+    conn.execute('UPDATE product SET name=?, cost=?, stock=? WHERE productID=?', (name, cost, stock, productID))
 
 ## delete
 def delete_customer(customerID):
