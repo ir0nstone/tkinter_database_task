@@ -112,27 +112,27 @@ class CustomerViewPage(Page):
         self.customerID = int(self.customer_var.get().split()[0])
         self.customer_info = get_customer(self.customerID)
 
-        self.customerIDInfo = tk.Label(self, text=f'{self.customer_info[0]}')
+        self.customer_id_info = tk.Label(self, text=f'{self.customer_info[0]}')
 
-        self.customerNameVar = tk.StringVar()
-        self.customerAddressVar = tk.StringVar()
-        self.customerPhoneVar = tk.StringVar()
-        self.customerEmailVar = tk.StringVar()
+        self.customer_name_var = tk.StringVar()
+        self.customer_address_var = tk.StringVar()
+        self.customer_phone_var = tk.StringVar()
+        self.customer_email_var = tk.StringVar()
 
-        customerNameInfo = tk.Entry(self, textvariable=self.customerNameVar)
-        self.customerNameVar.set(f'{self.customer_info[2]} {self.customer_info[1]}')
-        customerAddressInfo = tk.Entry(self, textvariable=self.customerAddressVar)
-        self.customerAddressVar.set(f'{self.customer_info[3]}')
-        customerPhoneInfo = tk.Entry(self, textvariable=self.customerPhoneVar)
-        self.customerPhoneVar.set(f'{self.customer_info[4]}')
-        customerEmailInfo = tk.Entry(self, textvariable=self.customerEmailVar)
-        self.customerEmailVar.set(f'{self.customer_info[5]}')
+        customer_name_info = tk.Entry(self, textvariable=self.customer_name_var)
+        self.customer_name_var.set(f'{self.customer_info[2]} {self.customer_info[1]}')
+        customer_address_info = tk.Entry(self, textvariable=self.customer_address_var)
+        self.customer_address_var.set(f'{self.customer_info[3]}')
+        customer_phone_info = tk.Entry(self, textvariable=self.customer_phone_var)
+        self.customer_phone_var.set(f'{self.customer_info[4]}')
+        customer_email_info = tk.Entry(self, textvariable=self.customer_email_var)
+        self.customer_email_var.set(f'{self.customer_info[5]}')
 
-        self.customerIDInfo.grid(row=5, column=1)
-        customerNameInfo.grid(row=6, column=1)
-        customerAddressInfo.grid(row=7, column=1)
-        customerPhoneInfo.grid(row=8, column=1)
-        customerEmailInfo.grid(row=9, column=1)
+        self.customer_id_info.grid(row=5, column=1)
+        customer_name_info.grid(row=6, column=1)
+        customer_address_info.grid(row=7, column=1)
+        customer_phone_info.grid(row=8, column=1)
+        customer_email_info.grid(row=9, column=1)
 
         # view button
         view_btn = tk.Button(self, text='View Customer Information', command=self.submit)
@@ -150,17 +150,17 @@ class CustomerViewPage(Page):
         self.customerID = int(self.customer_var.get().split()[0])
         self.customer_info = get_customer(self.customerID)
 
-        self.customerIDInfo.config(text=f'{self.customer_info[0]}')
-        self.customerNameVar.set(f'{self.customer_info[2]} {self.customer_info[1]}')
-        self.customerAddressVar.set(f'{self.customer_info[3]}')
-        self.customerPhoneVar.set(f'{self.customer_info[4]}')
-        self.customerEmailVar.set(f'{self.customer_info[5]}')
+        self.customer_id_info.config(text=f'{self.customer_info[0]}')
+        self.customer_name_var.set(f'{self.customer_info[2]} {self.customer_info[1]}')
+        self.customer_address_var.set(f'{self.customer_info[3]}')
+        self.customer_phone_var.set(f'{self.customer_info[4]}')
+        self.customer_email_var.set(f'{self.customer_info[5]}')
 
     def update(self):
         self.customerID = int(self.customer_var.get().split()[0])
 
-        surname, forename = self.customerNameVar.get().split()
-        update_customer(self.customerID, surname, forename, self.customerAddressVar.get(), self.customerPhoneVar.get(), self.customerEmailVar.get())
+        surname, forename = self.customer_name_var.get().split()
+        update_customer(self.customerID, surname, forename, self.customer_address_var.get(), self.customer_phone_var.get(), self.customer_email_var.get())
         commit()
 
     def delete(self):

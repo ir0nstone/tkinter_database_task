@@ -61,24 +61,28 @@ class SupplierPage(Page):
         self.products_vars.append(tk.StringVar())
         self.products_vars[0].set(self.product_options[0])
 
-        self.price_vars = []
-        self.price_vars.append(tk.StringVar())
+        self.cost_vars = []
+        self.cost_vars.append(tk.StringVar())
 
         # list for all further duplicated widgets to destroy them
         self.choice_widgets = []
 
         product_menu = tk.OptionMenu(self, self.products_vars[0], *self.product_options)
-        product_price = tk.Entry(self, textvariable=self.price_vars[0])
+        product_cost = tk.Entry(self, textvariable=self.cost_vars[0])
 
         product_label.grid(row=5, column=10)
         product_menu.grid(row=6, column=10)
-        product_price.grid(row=6, column=11)
+        product_cost.grid(row=6, column=11)
 
         self.current_idx = 0
 
         # new product button
         pro_btn = tk.Button(self, text='New Product', command=self.new_product)
         pro_btn.grid(row=200, column=10, columnspan=2)
+
+        # undo new button
+        pro_btn = tk.Button(self, text='Undo New Product', command=self.undo_new_product)
+        pro_btn.grid(row=200, column=12, columnspan=2)
 
         # button
         sub_btn = tk.Button(self, text='Submit', command=self.submit)
@@ -104,9 +108,9 @@ class SupplierPage(Page):
                 continue
 
             ids_done.append(productID)
-            price = int(self.price_vars[i].get())
+            cost = int(self.cost_vars[i].get())
 
-            insert_supplierProduct(productID, supplierID, price)
+            insert_supplierProduct(productID, supplierID, cost)
         commit()
 
         # reset
@@ -115,7 +119,7 @@ class SupplierPage(Page):
         self.email_var.set('')
 
         self.products_vars[0].set(self.product_options[0])
-        self.price_vars[0].set('')
+        self.cost_vars[0].set('')
 
         for widget in self.choice_widgets:
             widget.destroy()
@@ -126,16 +130,31 @@ class SupplierPage(Page):
         # setup everything again
         self.products_vars.append(tk.StringVar())
         self.products_vars[self.current_idx].set(self.product_options[0])
-        self.price_vars.append(tk.StringVar())
+        self.cost_vars.append(tk.StringVar())
 
         product_menu = tk.OptionMenu(self, self.products_vars[self.current_idx], *self.product_options)
-        product_price = tk.Entry(self, textvariable=self.price_vars[self.current_idx])
+        product_cost = tk.Entry(self, textvariable=self.cost_vars[self.current_idx])
 
         product_menu.grid(row=6+self.current_idx, column=10)
-        product_price.grid(row=6+self.current_idx, column=11)
+        product_cost.grid(row=6+self.current_idx, column=11)
 
         self.choice_widgets.append(product_menu)
-        self.choice_widgets.append(product_price)
+        self.choice_widgets.append(product_cost)
+
+    def undo_new_product(self):
+        if self.current_idx == 0:
+            return
+
+        to_remove = self.choice_widgets[-2:]
+
+        for w in to_remove:
+            w.destroy()
+            self.choice_widgets.remove(w)
+
+        self.products_vars.pop()
+        self.cost_vars.pop()
+
+        self.current_idx -= 1
 
 
 class SupplierViewPage(Page):
@@ -172,15 +191,15 @@ class SupplierViewPage(Page):
         self.supplierID = int(self.supplier_var.get().split()[0])
         self.supplier_info = get_supplier(self.supplierID)
 
-        self.supplierIDInfo = tk.Label(self, text=f'{self.supplier_info[0]}')
-        self.supplierNameInfo = tk.Label(self, text=f'{self.supplier_info[1]}')
-        self.supplierAddressInfo = tk.Label(self, text=f'{self.supplier_info[2]}')
-        self.supplierEmailInfo = tk.Label(self, text=f'{self.supplier_info[3]}')
+        self.supplier_id_info = tk.Label(self, text=f'{self.supplier_info[0]}')
+        self.supplier_name_info = tk.Label(self, text=f'{self.supplier_info[1]}')
+        self.supplier_address_info = tk.Label(self, text=f'{self.supplier_info[2]}')
+        self.supplier_email_info = tk.Label(self, text=f'{self.supplier_info[3]}')
 
-        self.supplierIDInfo.grid(row=5, column=1)
-        self.supplierNameInfo.grid(row=6, column=1)
-        self.supplierAddressInfo.grid(row=7, column=1)
-        self.supplierEmailInfo.grid(row=8, column=1)
+        self.supplier_id_info.grid(row=5, column=1)
+        self.supplier_name_info.grid(row=6, column=1)
+        self.supplier_address_info.grid(row=7, column=1)
+        self.supplier_email_info.grid(row=8, column=1)
 
         self.show_products()
 
@@ -201,10 +220,10 @@ class SupplierViewPage(Page):
         self.supplierID = int(self.supplier_var.get().split()[0])
         self.supplier_info = get_supplier(self.supplierID)
 
-        self.supplierIDInfo.config(text=f'{self.supplier_info[0]}')
-        self.supplierNameInfo.config(text=f'{self.supplier_info[1]}')
-        self.supplierAddressInfo.config(text=f'{self.supplier_info[2]}')
-        self.supplierEmailInfo.config(text=f'{self.supplier_info[3]}')
+        self.supplier_id_info.config(text=f'{self.supplier_info[0]}')
+        self.supplier_name_info.config(text=f'{self.supplier_info[1]}')
+        self.supplier_address_info.config(text=f'{self.supplier_info[2]}')
+        self.supplier_email_info.config(text=f'{self.supplier_info[3]}')
 
         self.show_products()
 

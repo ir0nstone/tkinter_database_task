@@ -1,6 +1,7 @@
 import tkinter as tk
+import tkinter.messagebox
 
-from interact import decrease_stock, list_customers, list_products, list_orders, check_customer_order, check_order_product, insert_order, insert_productOrderLink, commit, increase_product_quantity, get_order_customer, get_products_in_order
+from interact import decrease_stock, list_customers, list_products, list_orders, check_customer_order, check_order_product, insert_order, insert_productOrderLink, commit, increase_product_quantity, get_order_customer_status, get_products_in_order, get_stock, set_status_completed
 from page import Page
 
 
@@ -78,9 +79,41 @@ class OrderPage(Page):
         pro_btn = tk.Button(self, text='New Product', command=self.new_product)
         pro_btn.grid(row=200, column=0, columnspan=2)
 
+        # undo new button
+        pro_btn = tk.Button(self, text='Undo New Product', command=self.undo_new_product)
+        pro_btn.grid(row=200, column=1, columnspan=2)
+
         # button
         sub_btn = tk.Button(self, text='Submit', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
+
+    def submit(self):
+        customerID = int(self.customer_var.get().split()[0])
+
+        for i in range(self.current_idx + 1):
+            productID, *name = self.products_vars[i].get().split()
+            productID = int(productID)
+            name = ' '.join(name)
+            quantity = int(self.quantity_vars[i].get())
+
+            available_stock = get_stock(productID)
+
+            if available_stock < quantity:
+                tkinter.messagebox.showerror('Out of Stock!', f'There are only {available_stock} of {name} available!')
+                return
+
+            self.submit_product(customerID, productID, quantity)
+
+        # commit here so changes are rolled back if there is not enough stock
+        commit()
+
+        # reset
+        self.customer_var.set(self.customer_options[0])
+        self.products_vars[0].set(self.product_options[0])
+        self.quantity_vars[0].set('1')
+
+        for widget in self.choice_widgets:
+            widget.destroy()
 
     def new_product(self):
         self.current_idx += 1
@@ -100,22 +133,20 @@ class OrderPage(Page):
         self.choice_widgets.append(product_menu)
         self.choice_widgets.append(product_quantity)
 
-    def submit(self):
-        customerID = int(self.customer_var.get().split()[0])
+    def undo_new_product(self):
+        if self.current_idx == 0:
+            return
 
-        for i in range(self.current_idx + 1):
-            productID = int(self.products_vars[i].get().split()[0])
-            quantity = int(self.quantity_vars[i].get())
+        to_remove = self.choice_widgets[-2:]
 
-            self.submit_product(customerID, productID, quantity)
+        for w in to_remove:
+            w.destroy()
+            self.choice_widgets.remove(w)
 
-        # reset
-        self.customer_var.set(self.customer_options[0])
-        self.products_vars[0].set(self.product_options[0])
-        self.quantity_vars[0].set('1')
+        self.products_vars.pop()
+        self.quantity_vars.pop()
 
-        for widget in self.choice_widgets:
-            widget.destroy()
+        self.current_idx -= 1
 
     def submit_product(self, customerID, productID, quantity):
         orders = check_customer_order(customerID)
@@ -135,7 +166,6 @@ class OrderPage(Page):
             increase_product_quantity(cus_order, productID, quantity)
 
         decrease_stock(productID, quantity)
-        commit()
 
 
 class OrderViewPage(Page):
@@ -166,30 +196,41 @@ class OrderViewPage(Page):
 
         # print customer
         tk.Label(self, text="Customer ID:").grid(row=5, column=0)
+        tk.Label(self, text="Status:").grid(row=6, column=0)
 
-        customerID = get_order_customer(self.orderID)
-        self.customerIDInfo = tk.Label(self, text=customerID)
-        self.customerIDInfo.grid(row=5, column=1)
+        customerID, status = get_order_customer_status(self.orderID)
+        self.customer_id_info = tk.Label(self, text=customerID)
+        self.status_info = tk.Label(self, text=status)
+
+        self.customer_id_info.grid(row=5, column=1)
+        self.status_info.grid(row=6, column=1)
 
         # print all products in order
         self.product_widgets = []
         self.load_products()
 
-        # button
-        sub_btn = tk.Button(self, text='View Order Information', command=self.submit)
+        # set status to completed
+        sub_btn = tk.Button(self, text='Mark Completed', command=self.mark_completed)
         sub_btn.grid(row=201, column=0, columnspan=2)
+
+        # view button
+        sub_btn = tk.Button(self, text='View Order Information', command=self.submit)
+        sub_btn.grid(row=202, column=0, columnspan=2)
 
     def submit(self):
         for widget in self.product_widgets:
             widget.destroy()
 
         self.orderID = int(self.order_var.get())
-        customerID = get_order_customer(self.orderID)
-        self.customerIDInfo.config(text=customerID)
-
-        # print all products in order
+        customerID, status = get_order_customer_status(self.orderID)
+        self.customer_id_info.config(text=customerID)
+        self.status_info.config(text=status)
 
         self.load_products()
+
+    def mark_completed(self):
+        set_status_completed(int(self.order_var.get()))
+        commit()
 
     def load_products(self):
         self.product_widgets = []
@@ -202,8 +243,8 @@ class OrderViewPage(Page):
             pr_name = tk.Label(self, text=product)
             pr_quan = tk.Label(self, text=quantity)
 
-            pr_name.grid(row=6 + i, column=0)
-            pr_quan.grid(row=6 + i, column=1)
+            pr_name.grid(row=7 + i, column=0)
+            pr_quan.grid(row=7 + i, column=1)
 
             self.product_widgets.append(pr_name)
             self.product_widgets.append(pr_quan)

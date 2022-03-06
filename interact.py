@@ -78,6 +78,9 @@ def increase_product_quantity(orderID, productID, amount):
     new_quantity = get_product_quantity(orderID, productID) + amount
     update_product_quantity(orderID, productID, new_quantity)
 
+def set_status_completed(orderID):
+    conn.execute('UPDATE orders SET status="completed" WHERE orderID=?', (orderID,))
+
 
 ## list data
 def list_customers():
@@ -135,10 +138,10 @@ def get_stock(productID):
     return cursor.fetchall()[0][0]
 
 
-def get_order_customer(orderID):
+def get_order_customer_status(orderID):
     cursor = conn.cursor()
-    cursor.execute('SELECT customerID FROM orders WHERE orderID=?', (orderID,))
-    return cursor.fetchall()[0][0]
+    cursor.execute('SELECT customerID, status FROM orders WHERE orderID=?', (orderID,))
+    return cursor.fetchall()[0]
 
 
 def get_products_in_order(orderID):

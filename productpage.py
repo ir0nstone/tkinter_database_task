@@ -101,22 +101,23 @@ class ProductViewPage(Page):
         self.productID = int(self.product_var.get().split()[0])
         self.product_info = get_product(self.productID)
 
-        self.productNameVar = tk.StringVar()
-        self.productCostVar = tk.StringVar()
-        self.productStockVar = tk.StringVar()
+        self.product_name_var = tk.StringVar()
+        self.product_cost_var = tk.StringVar()
+        self.product_stock_var = tk.StringVar()
 
-        self.productIDInfo = tk.Label(self, text=f'{self.product_info[0]}')
-        productNameInfo = tk.Entry(self, textvariable=self.productNameVar)
-        self.productNameVar.set(f'{self.product_info[1]}')
-        productCostInfo = tk.Entry(self, textvariable=self.productCostVar)
-        self.productCostVar.set(f'{self.product_info[2]}')
-        productStockInfo = tk.Entry(self, textvariable=self.productStockVar)
-        self.productStockVar.set(f'{self.product_info[3]}')
+        self.product_id_info = tk.Label(self, text=f'{self.product_info[0]}')
 
-        self.productIDInfo.grid(row=5, column=1)
-        productNameInfo.grid(row=6, column=1)
-        productCostInfo.grid(row=7, column=1)
-        productStockInfo.grid(row=8, column=1)
+        product_name_info = tk.Entry(self, textvariable=self.product_name_var)
+        self.product_name_var.set(f'{self.product_info[1]}')
+        product_cost_info = tk.Entry(self, textvariable=self.product_cost_var)
+        self.product_cost_var.set(f'{self.product_info[2]}')
+        product_stock_info = tk.Entry(self, textvariable=self.product_stock_var)
+        self.product_stock_var.set(f'{self.product_info[3]}')
+
+        self.product_id_info.grid(row=5, column=1)
+        product_name_info.grid(row=6, column=1)
+        product_cost_info.grid(row=7, column=1)
+        product_stock_info.grid(row=8, column=1)
 
         # button
         sub_btn = tk.Button(self, text='View Product Information', command=self.submit)
@@ -134,15 +135,15 @@ class ProductViewPage(Page):
         self.productID = int(self.product_var.get().split()[0])
         self.product_info = get_product(self.productID)
 
-        self.productIDInfo.config(text=f'{self.product_info[0]}')
-        self.productNameInfo.config(text=f'{self.product_info[1]}')
-        self.productCostInfo.config(text=f'{self.product_info[2]}')
-        self.productStockInfo.config(text=f'{self.product_info[3]}')
+        self.product_id_info.config(text=f'{self.product_info[0]}')
+        self.product_name_var.set(f'{self.product_info[1]}')
+        self.product_cost_var.set(f'{self.product_info[2]}')
+        self.product_stock_var.set(f'{self.product_info[3]}')
 
     def update(self):
         self.productID = int(self.product_var.get().split()[0])
 
-        update_product(self.productID, self.productNameVar.get(), self.productCostVar.get(), self.productStockVar.get())
+        update_product(self.productID, self.product_name_var.get(), self.product_cost_var.get(), self.product_stock_var.get())
         commit()
 
     def delete(self):
