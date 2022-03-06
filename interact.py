@@ -173,7 +173,12 @@ def check_order_product(orderID, productID):
     return cursor.fetchall()
 
 
-## delete customer
+## update
+def update_customer(customerID, surname, forename, address, telephone, email):
+    conn.execute('UPDATE customer SET surname=?, forename=?, address=?, telephone=?, email=? WHERE customerID=?', (surname, forename, address, telephone, email, customerID))
+
+
+## delete
 def delete_customer(customerID):
     delete_customer_orders(customerID)
     conn.execute('DELETE FROM customer WHERE customerID=?', (customerID,))

@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_customer, commit, list_customers, get_customer, delete_customer
+from interact import insert_customer, commit, list_customers, get_customer, delete_customer, update_customer
 
 
 class MainCustomerPage(Page):
@@ -113,34 +113,55 @@ class CustomerViewPage(Page):
         self.customer_info = get_customer(self.customerID)
 
         self.customerIDInfo = tk.Label(self, text=f'{self.customer_info[0]}')
-        self.customerNameInfo = tk.Label(self, text=f'{self.customer_info[2]} {self.customer_info[1]}')
-        self.customerAddressInfo = tk.Label(self, text=f'{self.customer_info[3]}')
-        self.customerPhoneInfo = tk.Label(self, text=f'{self.customer_info[4]}')
-        self.customerEmailInfo = tk.Label(self, text=f'{self.customer_info[5]}')
+
+        self.customerNameVar = tk.StringVar()
+        self.customerAddressVar = tk.StringVar()
+        self.customerPhoneVar = tk.StringVar()
+        self.customerEmailVar = tk.StringVar()
+
+        customerNameInfo = tk.Entry(self, textvariable=self.customerNameVar)
+        self.customerNameVar.set(f'{self.customer_info[2]} {self.customer_info[1]}')
+        customerAddressInfo = tk.Entry(self, textvariable=self.customerAddressVar)
+        self.customerAddressVar.set(f'{self.customer_info[3]}')
+        customerPhoneInfo = tk.Entry(self, textvariable=self.customerPhoneVar)
+        self.customerPhoneVar.set(f'{self.customer_info[4]}')
+        customerEmailInfo = tk.Entry(self, textvariable=self.customerEmailVar)
+        self.customerEmailVar.set(f'{self.customer_info[5]}')
 
         self.customerIDInfo.grid(row=5, column=1)
-        self.customerNameInfo.grid(row=6, column=1)
-        self.customerAddressInfo.grid(row=7, column=1)
-        self.customerPhoneInfo.grid(row=8, column=1)
-        self.customerEmailInfo.grid(row=9, column=1)
+        customerNameInfo.grid(row=6, column=1)
+        customerAddressInfo.grid(row=7, column=1)
+        customerPhoneInfo.grid(row=8, column=1)
+        customerEmailInfo.grid(row=9, column=1)
 
         # view button
         view_btn = tk.Button(self, text='View Customer Information', command=self.submit)
         view_btn.grid(row=201, column=0, columnspan=2)
 
+        # update button
+        upd_btn = tk.Button(self, text='Update Customer', command=self.update)
+        upd_btn.grid(row=202, column=0, columnspan=2)
+
         # delete button
         del_btn = tk.Button(self, text='Delete Customer', command=self.delete)
-        del_btn.grid(row=202, column=0, columnspan=2)
+        del_btn.grid(row=203, column=0, columnspan=2)
 
     def submit(self):
         self.customerID = int(self.customer_var.get().split()[0])
         self.customer_info = get_customer(self.customerID)
 
         self.customerIDInfo.config(text=f'{self.customer_info[0]}')
-        self.customerNameInfo.config(text=f'{self.customer_info[2]} {self.customer_info[1]}')
-        self.customerAddressInfo.config(text=f'{self.customer_info[3]}')
-        self.customerPhoneInfo.config(text=f'{self.customer_info[4]}')
-        self.customerEmailInfo.config(text=f'{self.customer_info[5]}')
+        self.customerNameVar.set(f'{self.customer_info[2]} {self.customer_info[1]}')
+        self.customerAddressVar.set(f'{self.customer_info[3]}')
+        self.customerPhoneVar.set(f'{self.customer_info[4]}')
+        self.customerEmailVar.set(f'{self.customer_info[5]}')
+
+    def update(self):
+        self.customerID = int(self.customer_var.get().split()[0])
+
+        surname, forename = self.customerNameVar.get().split()
+        update_customer(self.customerID, surname, forename, self.customerAddressVar.get(), self.customerPhoneVar.get(), self.customerEmailVar.get())
+        commit()
 
     def delete(self):
         self.customerID = int(self.customer_var.get().split()[0])
@@ -152,7 +173,4 @@ class CustomerViewPage(Page):
     def reload_customer_list(self):
         self.customers = list_customers()
         self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in self.customers]
-        try:
-            self.customer_var.set(self.customer_options[0])
-        except IndexError:          # if all things are deleted
-            pass
+        self.customer_var.set(self.customer_options[0])
