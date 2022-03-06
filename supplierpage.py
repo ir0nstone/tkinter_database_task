@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_supplier, insert_supplierProduct, commit, list_products, get_supplier_id, list_suppliers, get_products_from_supplier, get_supplier, delete_supplier
+from interact import insert_supplier, insert_supplierProduct, commit, list_products, get_supplier_id, list_suppliers, get_products_from_supplier, get_supplier, delete_supplier, update_supplier_details
 
 
 class MainSupplierPage(Page):
@@ -191,10 +191,15 @@ class SupplierViewPage(Page):
         self.supplierID = int(self.supplier_var.get().split()[0])
         self.supplier_info = get_supplier(self.supplierID)
 
+        self.supplier_address_var = tk.StringVar()
+        self.supplier_email_var = tk.StringVar()
+
         self.supplier_id_info = tk.Label(self, text=f'{self.supplier_info[0]}')
         self.supplier_name_info = tk.Label(self, text=f'{self.supplier_info[1]}')
-        self.supplier_address_info = tk.Label(self, text=f'{self.supplier_info[2]}')
-        self.supplier_email_info = tk.Label(self, text=f'{self.supplier_info[3]}')
+        self.supplier_address_info = tk.Entry(self, textvariable=self.supplier_address_var)
+        self.supplier_address_var.set(f'{self.supplier_info[2]}')
+        self.supplier_email_info = tk.Entry(self, textvariable=self.supplier_email_var)
+        self.supplier_email_var.set(f'{self.supplier_info[3]}')
 
         self.supplier_id_info.grid(row=5, column=1)
         self.supplier_name_info.grid(row=6, column=1)
@@ -203,13 +208,17 @@ class SupplierViewPage(Page):
 
         self.show_products()
 
-        # button
+        # view button
         sub_btn = tk.Button(self, text='View Supplier Information', command=self.submit)
         sub_btn.grid(row=201, column=0, columnspan=2)
 
+        # update button
+        upd_btn = tk.Button(self, text='Update Supplier', command=self.update)
+        upd_btn.grid(row=202, column=0, columnspan=2)
+
         # delete button
         del_btn = tk.Button(self, text='Delete Supplier', command=self.delete)
-        del_btn.grid(row=202, column=0, columnspan=2)
+        del_btn.grid(row=203, column=0, columnspan=2)
 
     def submit(self):
         for widget in self.product_widgets:
@@ -222,10 +231,16 @@ class SupplierViewPage(Page):
 
         self.supplier_id_info.config(text=f'{self.supplier_info[0]}')
         self.supplier_name_info.config(text=f'{self.supplier_info[1]}')
-        self.supplier_address_info.config(text=f'{self.supplier_info[2]}')
-        self.supplier_email_info.config(text=f'{self.supplier_info[3]}')
+
+        self.supplier_address_var.set(f'{self.supplier_info[2]}')
+        self.supplier_email_var.set(f'{self.supplier_info[3]}')
 
         self.show_products()
+
+    def update(self):
+        self.supplierID = int(self.supplier_var.get().split()[0])
+        update_supplier_details(self.supplierID, self.supplier_address_var.get(), self.supplier_email_var.get())
+        commit()
 
     def delete(self):
         self.supplierID = int(self.supplier_var.get().split()[0])
