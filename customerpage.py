@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from page import Page
-from interact import insert_customer, commit, list_customers, get_customer
+from interact import insert_customer, commit, list_customers, get_customer, delete_customer
 
 
 class MainCustomerPage(Page):
@@ -91,8 +91,8 @@ class CustomerViewPage(Page):
         # choose customer
         tk.Label(self, text="Customer:").grid(row=4, column=0)
 
-        customers = list_customers()
-        self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in customers]
+        self.customers = list_customers()
+        self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in self.customers]
         self.customer_var = tk.StringVar()
         self.customer_var.set(self.customer_options[0])
 
@@ -122,9 +122,13 @@ class CustomerViewPage(Page):
         self.customerPhoneInfo.grid(row=8, column=1)
         self.customerEmailInfo.grid(row=9, column=1)
 
-        # button
-        sub_btn = tk.Button(self, text='View Customer Information', command=self.submit)
-        sub_btn.grid(row=201, column=0, columnspan=2)
+        # view button
+        view_btn = tk.Button(self, text='View Customer Information', command=self.submit)
+        view_btn.grid(row=201, column=0, columnspan=2)
+
+        # delete button
+        view_btn = tk.Button(self, text='Delete Customer', command=self.delete)
+        view_btn.grid(row=202, column=0, columnspan=2)
 
     def submit(self):
         self.customerID = int(self.customer_var.get().split()[0])
@@ -135,3 +139,13 @@ class CustomerViewPage(Page):
         self.customerAddressInfo.config(text=f'{self.customer_info[3]}')
         self.customerPhoneInfo.config(text=f'{self.customer_info[4]}')
         self.customerEmailInfo.config(text=f'{self.customer_info[5]}')
+
+    def delete(self):
+        self.customerID = int(self.customer_var.get().split()[0])
+        delete_customer(self.customerID)
+        commit()
+
+        # reset to defaults
+        self.customers = list_customers()
+        self.customer_options = [f'{x[0]} {x[1]}, {x[2]}' for x in self.customers]
+        self.customer_var.set(self.customer_options[0])

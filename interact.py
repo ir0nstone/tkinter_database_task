@@ -79,7 +79,7 @@ def increase_product_quantity(orderID, productID, amount):
     update_product_quantity(orderID, productID, new_quantity)
 
 
-## extract data
+## list data
 def list_customers():
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM customer')
@@ -104,6 +104,7 @@ def list_suppliers():
     return cursor.fetchall()
 
 
+## extract data
 def get_customer(customerID):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM customer WHERE customerID=?', (customerID,))
@@ -170,3 +171,25 @@ def check_order_product(orderID, productID):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM productOrderLink WHERE orderID=? AND productID=?;', (orderID, productID))
     return cursor.fetchall()
+
+
+## delete customer
+def delete_customer(customerID):
+    delete_customer_orders(customerID)
+    conn.execute('DELETE FROM customer WHERE customerID=?', (customerID,))
+
+
+def delete_order(orderID):
+    delete_order_products(orderID)
+    conn.execute('DELETE FROM orders WHERE orderID=?', (orderID,))
+
+def delete_customer_orders(customerID):
+    cursor = conn.cursor()
+    cursor.execute('SELECT orderID FROM orders WHERE customerID=?;', (customerID,))
+    orders = cursor.fetchall()
+
+    for order in orders:
+        delete_order(order[0])
+
+def delete_order_products(orderID):
+    conn.execute('DELETE FROM productOrderLink WHERE orderID=?', (orderID,))
